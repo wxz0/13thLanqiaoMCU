@@ -1,6 +1,10 @@
 ".\Objects\STARTUP.obj",
+".\Objects\main.obj",
 ".\Objects\led.obj",
 ".\Objects\seg.obj",
-".\Objects\key.obj" 
+".\Objects\key.obj",
+".\Objects\74hc138.obj",
+".\Objects\ds1302.obj",
+".\Objects\onewire.obj" 
 TO ".\Objects\project" 
 PRINT(".\Listings\project.m51") RAMSIZE(256) 
