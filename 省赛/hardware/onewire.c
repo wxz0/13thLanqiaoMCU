@@ -65,3 +65,23 @@ bit init_ds18b20(void)
   
   	return initflag;
 }
+
+float readtemp(void)
+{
+	uint8_t temp_h = 0;
+	uint8_t temp_l = 0;
+	
+  init_ds18b20();
+  Write_DS18B20(0xcc);
+	Write_DS18B20(0x44);
+	
+	init_ds18b20();
+  Write_DS18B20(0xcc);
+	Write_DS18B20(0xbe);
+	
+	temp_l = Read_DS18B20();
+	temp_h = Read_DS18B20();
+	
+	return ((temp_h << 8) | temp_l) / 16.0;
+	
+}

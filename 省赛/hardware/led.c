@@ -41,12 +41,21 @@ void led_proc(uint8_t state[])
 
 void relay_proc(bit flag)
 {
+	static uint8_t state = 0;
+	uint8_t temp = 0;
   if(flag)
 	{
-	  P0 = P0 | ~0xef;
+	  temp |= ~0xef;
 	}
 	else
 	{
-	  P0 = P0 & 0xef;
+	  temp &= 0xef;
+	}
+	if(temp != state)
+	{
+	  P0 = temp;
+		hc138_select(5);
+		hc138_select(0);
+		state = temp;
 	}
 }
