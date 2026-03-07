@@ -12,8 +12,7 @@ idata uint8_t show_mode = 0;
 
 pdata uint8_t led_state[] = {0,0,0,0,0,0,0,0};
 idata bit relay_state = 0;
-idata bit relay_on_flag = 0;
-idata uint16_t relay_5s_count = 0;
+idata bit hourflag = 0;
 idata bit led1_on = 0;
 idata bit led3_flash = 0;
 idata uint16_t led_5s_count = 0;
@@ -72,50 +71,20 @@ void temp_task(void)
 
 void led_task(void)
 {
-  if(time[1] == 0 && time[2] == 0)
-	{
-	  led1_on = 1;
-		led_state[0] = 1;
-	}
+  if(time[1] == 0 && time[2] == 0)hourflag = 1;
 	
 	if(control_mode)
 	{
-	  led_state[1] = 0;
-		if(time[1] == 0 && time[2] == 0)
-	  {
-
-			relay_on_flag = 1;
-	  }
-		if(relay_on_flag == 1)
-		{
-		  relay_state = 1;
-		}
-		else
-		{
-		  relay_state = 0;
-		}
+	  relay_state = hourflag;
 	}
 	else
 	{
-	  led_state[1] = 1;
-		if(temp >= temp_limit * 10)
-		{
-		  relay_state = 1;
-		}
-		else
-		{
-		  relay_state = 0;
-		}
+	  relay_state = temp > temp_limit * 10;
 	}
 	
-	if(relay_state)
-	{
-	  led_state[2] = led3_flash;
-	}
-	else
-	{
-	  led_state[2] = 0;
-	}
+	led_state[0] = hourflag;
+	led_state[1] = !control_mode;
+	led_state[2] = led3_flash; 
 	relay_proc(relay_state);
 }
 
@@ -123,12 +92,12 @@ void seg_task(void)
 {
   if(seg_slow)return;
 	seg_slow = 1;
+	seg_show[0] = 11;
+	seg_show[1] = show_mode+1;
+	seg_show[2] = 10;
   switch(show_mode)
   {
 	  case 0:
-			seg_show[0] = 11;
-		  seg_show[1] = 1;
-		  seg_show[2] = 10;
 		  seg_show[3] = 10;
       seg_show[4] = 10;
       seg_show[5] = temp / 100;
@@ -137,9 +106,6 @@ void seg_task(void)
       seg_show[7] = temp % 10;		
 			break;
 		case 1:
-			seg_show[0] = 11;
-		  seg_show[1] = 2;
-		  seg_show[2] = 10;
 		  if(key17_press)
 			{
 			  seg_show[3] = time[1] / 10;
@@ -161,9 +127,6 @@ void seg_task(void)
 		  
    		break;
 		case 2:
-			seg_show[0] = 11;
-		  seg_show[1] = 3;
-		  seg_show[2] = 10;
 		  seg_show[3] = 10;
       seg_show[4] = 10;
 		  seg_show[5] = 10;
@@ -217,9 +180,6 @@ void key_task(void)
 			}
 		  break;
 	}
-
-	
-	
 }
 
 void Timer0_Isr(void) interrupt 1
@@ -236,39 +196,19 @@ void Timer0_Isr(void) interrupt 1
 	if(time_slow>=160)time_slow = 0;
 	if(temp_slow>=160)temp_slow = 0;
 	
-	if(led1_on)
+	if(hourflag)
 	{
-	  led_5s_count++;
-		if(led_5s_count >= 5000)
+	  if(++led_5s_count == 5000)
 		{
-			led_state[0] = 0;
-			if(control_mode)
-			{
-			  relay_state = 0;
-			}
-			led1_on = 0;
 		  led_5s_count = 0;
+			hourflag = 0;
 		}
 	}
 	
-	if(relay_on_flag)
-	{
-	  relay_5s_count++;
-		if(relay_5s_count >= 5000)
-		{
-			relay_on_flag = 0;
-		  relay_5s_count = 0;
-		}
-	}
-	else
-	{
-	  relay_5s_count = 0;
-	}
 	
 	if(relay_state)
 	{
-	  led_100ms_count++;
-		if(led_100ms_count >= 100)
+		if(++led_100ms_count >= 100)
 		{
 			led3_flash = !led3_flash;
 		  led_100ms_count = 0;
@@ -277,6 +217,7 @@ void Timer0_Isr(void) interrupt 1
 	else
 	{
 	  led_100ms_count = 0;
+		led3_flash  = 0;
 	}
 	
 	seg_proc(seg_index,seg_show[seg_index],seg_point[seg_index]);
