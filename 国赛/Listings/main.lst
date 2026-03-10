@@ -1,0 +1,338 @@
+C51 COMPILER V9.60.7.0   MAIN                                                              03/10/2026 21:57:26 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\hardware) DEBUG OBJECTEXTEND PR
+                    -INT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <STC15F2K60S2.H>
+   2          #include "seg.h"
+   3          #include "led.h"
+   4          #include "key.h"
+   5          #include "iic.h"
+   6          #include "wave.h"
+   7          idata uint8_t seg_index= 0;
+   8          pdata uint8_t seg_show[] = {10,10,10,10,10,10,10,10};
+   9          pdata uint8_t seg_point[] = {0,0,0,0,0,0,0,0};
+  10          idata uint8_t show_mode = 0;
+  11          
+  12          idata uint16_t fre = 0;
+  13          idata uint16_t fre_100x = 0;
+  14          idata uint16_t fre_1s_count = 0;
+  15          idata bit fre_mode = 0;
+  16          
+  17          idata uint8_t humi = 0;
+  18          idata uint8_t dac = 0;
+  19          float volt = 0;
+  20          
+  21          idata uint16_t dist = 0;
+  22          idata bit dist_mode = 0;
+  23          
+  24          idata uint8_t pram_mode = 0;
+  25          idata uint16_t fre_limit = 90;
+  26          idata uint8_t humi_limit = 40;
+  27          idata uint8_t dist_limit = 6;
+  28          
+  29          idata uint8_t led_state[] = {0,0,0,0,0,0,0,0};
+  30          
+  31          idata uint8_t key_state =0;
+  32          
+  33          idata uint8_t key_slow = 0;
+  34          idata uint8_t seg_slow = 0;
+  35          idata uint8_t adc_slow = 0;
+  36          idata uint8_t wave_slow = 0;
+  37          
+  38          void Timer0_Init(void)    //1??@12.000MHz
+  39          {
+  40   1        AUXR |= 0x80;     //?????1T??
+  41   1        TMOD &= 0xF0;     //???????
+  42   1        TMOD |= 0x04;
+  43   1        TL0 = 0x00;       //???????
+  44   1        TH0 = 0x00;       //???????
+  45   1        TF0 = 0;        //??TF0??
+  46   1        TR0 = 1;        //???0????
+  47   1      }
+  48          
+  49          void Timer1_Init(void)    //1??@12.000MHz
+  50          {
+  51   1        AUXR |= 0x40;     //?????1T??
+  52   1        TMOD &= 0x0F;     //???????
+  53   1        TL1 = 0x20;       //???????
+  54   1        TH1 = 0xD1;       //???????
+C51 COMPILER V9.60.7.0   MAIN                                                              03/10/2026 21:57:26 PAGE 2   
+
+  55   1        TF1 = 0;        //??TF1??
+  56   1        TR1 = 1;        //???1????
+  57   1        ET1 = 1;        //?????1??
+  58   1        EA = 1;
+  59   1      }
+  60          
+  61          void wave_task(void)
+  62          {
+  63   1        if(wave_slow)return;
+  64   1        wave_slow = 1;
+  65   1        dist = readdist();
+  66   1      }
+  67          
+  68          void adc_task(void)
+  69          {
+  70   1       if(adc_slow)return;
+  71   1       adc_slow = 1;
+  72   1       dac = readvlot();
+  73   1       volt = dac / 51.0;
+  74   1       humi = volt * 20;  
+  75   1      }
+  76          
+  77          void key_task(void)
+  78          {
+  79   1       uint8_t key_num = 0;
+  80   1       if(key_slow)return;
+  81   1       key_slow = 1;
+  82   1       key_state = key_state << 4;
+  83   1       key_state |= key_getstate();
+  84   1      
+  85   1       if((key_state & 0x11) == 0x10)key_num = 4;
+  86   1       if((key_state & 0x22) == 0x20)key_num = 5;
+  87   1       if((key_state & 0x44) == 0x40)key_num = 6;
+  88   1       if((key_state & 0x88) == 0x80)key_num = 7;
+  89   1      
+  90   1       switch(key_num)
+  91   1       {
+  92   2         case 4:
+  93   2           show_mode++;
+  94   2           show_mode %= 4;
+  95   2           break;
+  96   2         case 5:
+  97   2           pram_mode++;
+  98   2           pram_mode %= 3;
+  99   2           break;
+ 100   2         case 6:
+ 101   2           if(show_mode == 2)
+ 102   2           {
+ 103   3             dist_mode = !dist_mode;
+ 104   3           }
+ 105   2           else if(show_mode == 3)
+ 106   2           {
+ 107   3             switch(pram_mode)
+ 108   3             {
+ 109   4               case 0:
+ 110   4                 fre_limit = fre_limit + 5;
+ 111   4                 break;
+ 112   4               case 1:
+ 113   4                 humi_limit = humi_limit + 10;
+ 114   4                 break;
+ 115   4               case 2:
+ 116   4                 dist_limit = dist_limit + 1;
+C51 COMPILER V9.60.7.0   MAIN                                                              03/10/2026 21:57:26 PAGE 3   
+
+ 117   4                 break;
+ 118   4             } 
+ 119   3           }
+ 120   2           break;
+ 121   2         case 7:
+ 122   2           if(show_mode == 0)
+ 123   2           {
+ 124   3             fre_mode = !fre_mode;
+ 125   3           }
+ 126   2           else if(show_mode == 3)
+ 127   2           {
+ 128   3             switch(pram_mode)
+ 129   3             {
+ 130   4               case 0:
+ 131   4                 fre_limit = fre_limit - 5;
+ 132   4                 break;
+ 133   4               case 1:
+ 134   4                 humi_limit = humi_limit - 10;
+ 135   4                 break;
+ 136   4               case 2:
+ 137   4                 dist_limit = dist_limit - 1;
+ 138   4                 break;
+ 139   4             } 
+ 140   3           }
+ 141   2           break;
+ 142   2       }   
+ 143   1      }
+ 144          
+ 145          void seg_task(void)
+ 146          {
+ 147   1       uint8_t i = 0;
+ 148   1       if(seg_slow)return;
+ 149   1       seg_slow = 1;
+ 150   1       switch(show_mode)
+ 151   1       {
+ 152   2         case 0:
+ 153   2           seg_show[0] = 11;
+ 154   2           seg_show[1] = 10;
+ 155   2           seg_point[6] = 0;
+ 156   2           if(!fre_mode)
+ 157   2           {
+ 158   3             seg_show[2] = fre / 100000;
+ 159   3             seg_show[3] = fre / 10000;
+ 160   3             seg_show[4] = fre / 1000 % 10;
+ 161   3             seg_show[5] = fre / 100 % 10;
+ 162   3             seg_show[6] = fre / 10 % 10;
+ 163   3             seg_show[7] = fre % 10;
+ 164   3             for(i = 2;seg_show[i] == 0;i++)
+ 165   3             {
+ 166   4               seg_show[i] = 10;
+ 167   4             }
+ 168   3           }
+ 169   2           else
+ 170   2           {
+ 171   3             seg_point[6] = 1;
+ 172   3             if(fre < 100)
+ 173   3             {
+ 174   4               seg_show[2] = 10;
+ 175   4               seg_show[3] = 10;
+ 176   4               seg_show[4] = 10;
+ 177   4               seg_show[5] = 10;
+ 178   4               seg_show[6] = 0;
+C51 COMPILER V9.60.7.0   MAIN                                                              03/10/2026 21:57:26 PAGE 4   
+
+ 179   4               seg_show[7] = 0;
+ 180   4             }
+ 181   3             else 
+ 182   3             {
+ 183   4               fre_100x = fre / 100.0;
+ 184   4               seg_show[2] = fre_100x / 100000;
+ 185   4               seg_show[3] = fre_100x / 10000;
+ 186   4               seg_show[4] = fre_100x / 1000 % 10;
+ 187   4               seg_show[5] = fre_100x / 100 % 10;
+ 188   4               seg_show[6] = fre_100x / 10 % 10;
+ 189   4               seg_show[7] = fre_100x % 10;
+ 190   4               for(i=2 ;i<=5;i++)
+ 191   4               {
+ 192   5                 if( seg_show[i] == 0)
+ 193   5                 {
+ 194   6                   seg_show[i] = 10;
+ 195   6                 }
+ 196   5                 else
+ 197   5                 {
+ 198   6                   break;
+ 199   6                 } 
+ 200   5               }
+ 201   4             }
+ 202   3             
+ 203   3           }
+ 204   2           break;
+ 205   2         case 1:
+ 206   2           seg_show[0] = 14;
+ 207   2           seg_point[6] = 0;
+ 208   2           seg_show[1] = 10;
+ 209   2           seg_show[2] = 10;
+ 210   2           seg_show[3] = 10;
+ 211   2           seg_show[4] = 10;
+ 212   2           seg_show[5] = 10;
+ 213   2           seg_show[6] = humi / 10;
+ 214   2           seg_show[7] = humi % 10;
+ 215   2           
+ 216   2           break;
+ 217   2         case 2:
+ 218   2           seg_show[0] = 12;
+ 219   2           if(!dist_mode)
+ 220   2           {
+ 221   3             seg_show[1] = 10;
+ 222   3             seg_show[2] = 10;
+ 223   3             seg_show[3] = 10;
+ 224   3             seg_show[4] = 10;
+ 225   3             seg_show[5] = dist / 100;
+ 226   3             seg_point[5] = 0;
+ 227   3             seg_show[6] = dist / 10;
+ 228   3             seg_show[7] = dist % 10;
+ 229   3             if(seg_show[5] == 0)seg_show[5] = 10;
+ 230   3           }
+ 231   2           else
+ 232   2           {
+ 233   3             seg_show[1] = 10;
+ 234   3             seg_show[2] = 10;
+ 235   3             seg_show[3] = 10;
+ 236   3             seg_show[4] = 10;
+ 237   3             seg_show[5] = dist / 100;
+ 238   3             seg_point[5] = 1;
+ 239   3             seg_show[6] = dist / 10;
+ 240   3             seg_show[7] = dist % 10;
+C51 COMPILER V9.60.7.0   MAIN                                                              03/10/2026 21:57:26 PAGE 5   
+
+ 241   3           }
+ 242   2           break;
+ 243   2         case 3:
+ 244   2           seg_point[5] = 0;
+ 245   2           seg_show[0] = 13;
+ 246   2           seg_show[1] = pram_mode + 1;
+ 247   2           seg_show[2] = 10;
+ 248   2           seg_show[3] = 10;
+ 249   2           seg_show[4] = 10;
+ 250   2           seg_show[5] = 10;
+ 251   2           switch(pram_mode)
+ 252   2           {
+ 253   3             case 0:
+ 254   3               seg_show[6] = fre_limit / 10;
+ 255   3               seg_point[6] = 1;
+ 256   3               seg_show[7] = fre_limit % 10;
+ 257   3               break;
+ 258   3             case 1:
+ 259   3               seg_show[6] = humi_limit / 10;
+ 260   3               seg_point[6] = 0;
+ 261   3               seg_show[7] = humi_limit % 10;
+ 262   3               break;
+ 263   3             case 2:
+ 264   3               seg_show[6] = dist_limit / 10;
+ 265   3               seg_point[6] = 1;
+ 266   3               seg_show[7] = dist_limit % 10;
+ 267   3               break;
+ 268   3           }
+ 269   2           break;
+ 270   2       }
+ 271   1      }
+ 272          
+ 273          void Timer1_Isr(void) interrupt 3
+ 274          {
+ 275   1        if(++seg_slow >= 90)seg_slow = 0;
+ 276   1        if(++seg_index >= 8)seg_index = 0;
+ 277   1        if(++key_slow >= 10)key_slow = 0;
+ 278   1        if(++adc_slow >= 160)adc_slow = 0;
+ 279   1        if(++wave_slow >= 160)wave_slow = 0;
+ 280   1        if(++fre_1s_count >= 1000)
+ 281   1        {
+ 282   2          fre_1s_count = 0;
+ 283   2          TR0 = 0;
+ 284   2          fre = (TH0 << 8 | TL0);
+ 285   2          TH0 = TL0 = 0;
+ 286   2          TR0 = 1;
+ 287   2        }
+ 288   1        
+ 289   1        seg_proc(seg_index,seg_show[seg_index],seg_point[seg_index]);
+ 290   1      }
+ 291          
+ 292          void main(void)
+ 293          {
+ 294   1        Timer0_Init();
+ 295   1        Timer1_Init();
+ 296   1        while(1)
+ 297   1        {
+ 298   2          wave_task();
+ 299   2          adc_task();
+ 300   2          seg_task();
+ 301   2          key_task();
+ 302   2        }
+C51 COMPILER V9.60.7.0   MAIN                                                              03/10/2026 21:57:26 PAGE 6   
+
+ 303   1      
+ 304   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1284    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =     16    ----
+   DATA SIZE        =      4       1
+   IDATA SIZE       =     30    ----
+   BIT SIZE         =      2    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

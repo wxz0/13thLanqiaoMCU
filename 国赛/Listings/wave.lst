@@ -1,0 +1,71 @@
+C51 COMPILER V9.60.7.0   WAVE                                                              03/10/2026 21:46:09 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE WAVE
+OBJECT MODULE PLACED IN .\Objects\wave.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE hardware\wave.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\hardware) DEBUG OBJECT
+                    -EXTEND PRINT(.\Listings\wave.lst) TABS(2) OBJECT(.\Objects\wave.obj)
+
+line level    source
+
+   1          #include "wave.h"
+   2          
+   3          void Delay12us(void)  //@12.000MHz
+   4          {
+   5   1        unsigned char data i;
+   6   1      
+   7   1        _nop_();
+   8   1        _nop_();
+   9   1        i = 33;
+  10   1        while (--i);
+  11   1      }
+  12          
+  13          void sendwave(void)
+  14          {
+  15   1       uint8_t i = 0;
+  16   1       for(i = 0;i<8;i++)
+  17   1       {
+  18   2        P10 = 1;
+  19   2        Delay12us();
+  20   2        P10 = 0;
+  21   2        Delay12us();   
+  22   2       }
+  23   1      }
+  24          
+  25          float readdist(void)
+  26          { 
+  27   1       CMOD &= 0x00;
+  28   1       CR = 0;
+  29   1       CF = 0;  
+  30   1       CL = 0;
+  31   1       CH = 0;
+  32   1       sendwave();
+  33   1       CR = 1;
+  34   1       while(P11 == 1  && CF == 0);
+  35   1       CR = 0;
+  36   1       if(CF == 0)
+  37   1       {
+  38   2         return (CH << 8 | CL) * 17.0 / 1000.0;
+  39   2       }
+  40   1       else
+  41   1       {
+  42   2         CF = 0;
+  43   2         return 999;
+  44   2       }
+  45   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     93    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+C51 COMPILER V9.60.7.0   WAVE                                                              03/10/2026 21:46:09 PAGE 2   
+
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

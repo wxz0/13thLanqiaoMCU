@@ -392,14 +392,14 @@
           <GroupName>hardware</GroupName>
           <Files>
             <File>
-              <FileName>led.c</FileName>
+              <FileName>hc138.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\hardware\led.c</FilePath>
+              <FilePath>.\hardware\hc138.c</FilePath>
             </File>
             <File>
-              <FileName>led.h</FileName>
+              <FileName>hc138.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\hardware\led.h</FilePath>
+              <FilePath>.\hardware\hc138.h</FilePath>
             </File>
             <File>
               <FileName>seg.c</FileName>
@@ -412,6 +412,16 @@
               <FilePath>.\hardware\seg.h</FilePath>
             </File>
             <File>
+              <FileName>led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\hardware\led.c</FilePath>
+            </File>
+            <File>
+              <FileName>led.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>.\hardware\led.h</FilePath>
+            </File>
+            <File>
               <FileName>key.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\hardware\key.c</FilePath>
@@ -422,34 +432,24 @@
               <FilePath>.\hardware\key.h</FilePath>
             </File>
             <File>
-              <FileName>74hc138.c</FileName>
+              <FileName>wave.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\hardware\74hc138.c</FilePath>
+              <FilePath>.\hardware\wave.c</FilePath>
             </File>
             <File>
-              <FileName>74hc138.h</FileName>
+              <FileName>wave.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\hardware\74hc138.h</FilePath>
+              <FilePath>.\hardware\wave.h</FilePath>
             </File>
             <File>
-              <FileName>ds1302.c</FileName>
+              <FileName>iic.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\hardware\ds1302.c</FilePath>
+              <FilePath>.\hardware\iic.c</FilePath>
             </File>
             <File>
-              <FileName>onewire.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>.\hardware\onewire.c</FilePath>
-            </File>
-            <File>
-              <FileName>ds1302.h</FileName>
+              <FileName>iic.h</FileName>
               <FileType>5</FileType>
-              <FilePath>.\hardware\ds1302.h</FilePath>
-            </File>
-            <File>
-              <FileName>onewire.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>.\hardware\onewire.h</FilePath>
+              <FilePath>.\hardware\iic.h</FilePath>
             </File>
           </Files>
         </Group>
