@@ -40,6 +40,6 @@ float readdist(void)
  else
  {
    CF = 0;
-	 return 999;
+	 return 0;
  }
 }

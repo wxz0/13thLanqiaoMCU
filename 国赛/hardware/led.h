@@ -2,4 +2,6 @@
 
 void led_proc(uint8_t state[]);
 
-void relay_proc(bit state);
+void relay_proc(bit relay_state);
+
+void motor_proc(bit motor_state);

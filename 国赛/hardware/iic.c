@@ -132,9 +132,8 @@ void dacout(uint8_t num)
  I2CStart();
  I2CSendByte(0x90);
  I2CWaitAck();
- I2CSendByte(0x80);
+ I2CSendByte(0x43);
  I2CWaitAck();
- 
  I2CSendByte(num);
  I2CWaitAck();
  I2CStop();	
