@@ -1,0 +1,1 @@
+"hardware\hc138.c" OPTIMIZE (8,SPEED) BROWSE INCDIR(.\hardware) DEBUG OBJECTEXTEND PRINT(.\Listings\hc138.lst) TABS (2) OBJECT(.\Objects\hc138.obj)

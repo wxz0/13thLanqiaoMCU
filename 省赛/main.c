@@ -143,19 +143,22 @@ void key_task(void)
   key_state = key_state << 4;
 	key_state |= key_getstate();
 	
-	if((key_state & 0x11) == 0x10)key_num = 12;
-	if((key_state & 0x22) == 0x20)key_num = 13;
-	if((key_state & 0x44) == 0x40)key_num = 16;
-	if((key_state & 0x88) == 0x80)
-	{
-	  key_num = 17;
-		key17_press = 0;
-	}
+	if((key_state & 0x11) == 0x01)key_num = 12;
+	if((key_state & 0x22) == 0x02)key_num = 13;
+	if((key_state & 0x44) == 0x04)key_num = 16;
+	if((key_state & 0x88) == 0x08)key_num = 17;
+
 	
-	if((key_state & 0x88) == 0x08)
+	if((key_state & 0x88) == 0x88)
 	{
 	  key17_press = 1;
 	}
+	else
+	{
+	  key17_press = 0;
+	}
+	
+	
 	switch(key_num)
 	{
 	  case 12:

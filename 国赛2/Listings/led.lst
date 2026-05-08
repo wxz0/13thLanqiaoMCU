@@ -1,0 +1,134 @@
+C51 COMPILER V9.60.7.0   LED                                                               05/07/2026 21:26:01 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE LED
+OBJECT MODULE PLACED IN .\Objects\led.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE hardware\led.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\hardware) DEBUG OBJECTE
+                    -XTEND PRINT(.\Listings\led.lst) TABS(2) OBJECT(.\Objects\led.obj)
+
+line level    source
+
+   1          #include "led.h"
+   2          
+   3          static uint8_t old1 = 0x00;
+   4          static uint8_t temp1 = 0xff;
+   5          
+   6          
+   7          
+   8          
+   9          void led_proc(uint8_t led_state[])
+  10          {
+  11   1        static uint8_t state = 0;
+  12   1        uint8_t temp =0;
+  13   1        uint8_t i = 0;
+  14   1        
+  15   1        for(i = 0;i<8;i++)
+  16   1        {
+  17   2          temp |= led_state[i] << i;
+  18   2        }
+  19   1        
+  20   1        if(temp != state)
+  21   1        {
+  22   2          P0 = ~temp;
+  23   2          P2 = (P2&0x1f) | 0x80;
+  24   2          P2 = P2&0x1f;
+  25   2          state = temp;
+  26   2        }
+  27   1      }
+  28          
+  29          void relay_proc(bit relay_state)
+  30          {
+  31   1       if(relay_state)
+  32   1       {
+  33   2         temp1 |= 0x10;
+  34   2       }
+  35   1       else
+  36   1       {
+  37   2         temp1 &= ~0x10;
+  38   2       }
+  39   1       
+  40   1       if(temp1 != old1)
+  41   1       {
+  42   2         P0 = temp1;
+  43   2         P2 = (P2 & 0x1f) | 0xa0;
+  44   2         P2 = (P2 & 0x1f);
+  45   2         old1 = temp1;
+  46   2       }
+  47   1      }
+  48          
+  49          void buzzer_proc(bit buzzer_state)
+  50          {
+  51   1         if(buzzer_state)
+  52   1         {
+  53   2           temp1 |= 0x40;
+  54   2         }
+C51 COMPILER V9.60.7.0   LED                                                               05/07/2026 21:26:01 PAGE 2   
+
+  55   1         else
+  56   1         {
+  57   2           temp1 &= ~0x40;
+  58   2         }
+  59   1         
+  60   1         if(temp1 != old1)
+  61   1         {
+  62   2           P0 = temp1;
+  63   2           P2 = (P2 & 0x1f) | 0xa0;
+  64   2           P2 = (P2 & 0x1f);
+  65   2           old1 = temp1;
+  66   2         }
+  67   1      }
+  68          
+  69          void motor_proc(bit mottor_state)
+  70          {
+  71   1        if(mottor_state)
+  72   1        {
+  73   2          temp1 |= 0x20;
+  74   2        }
+  75   1        else
+  76   1         {
+  77   2           temp1 &= ~0x20;
+  78   2         }
+  79   1         
+  80   1         if(temp1 != old1)
+  81   1         {
+  82   2           P0 = temp1;
+  83   2           P2 = (P2 & 0x1f) | 0xa0;
+  84   2           P2 = (P2 & 0x1f);
+  85   2           old1 = temp1;
+  86   2         }
+  87   1      }
+  88          
+  89          void sys_init(void)
+  90          {
+  91   1       P0 = 0xff;
+  92   1       P2 = (P2&0x1f) | 0x80;
+  93   1       P2 = P2&0x1f;
+  94   1        
+  95   1       buzzer_proc(0);
+  96   1       relay_proc(0); 
+  97   1       motor_proc(0); 
+  98   1        
+  99   1       P0 = 0xff;
+ 100   1       P2 = (P2&0x1f) | 0xc0;
+ 101   1       P2 = P2&0x1f;
+ 102   1      
+ 103   1       P0 = 0xff;
+ 104   1       P2 = (P2&0x1f) | 0xe0;
+ 105   1       P2 = P2&0x1f;  
+ 106   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    225    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----       3
+C51 COMPILER V9.60.7.0   LED                                                               05/07/2026 21:26:01 PAGE 3   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

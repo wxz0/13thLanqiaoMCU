@@ -1,7 +1,7 @@
-C51 COMPILER V9.54   KEY                                                                   03/07/2026 13:55:26 PAGE 1   
+C51 COMPILER V9.60.7.0   KEY                                                               04/09/2026 16:31:28 PAGE 1   
 
 
-C51 COMPILER V9.54, COMPILATION OF MODULE KEY
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KEY
 OBJECT MODULE PLACED IN .\Objects\key.obj
 COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE hardware\key.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\hardware) DEBUG OBJECTE
                     -XTEND PRINT(.\Listings\key.lst) TABS(2) OBJECT(.\Objects\key.obj)

@@ -1,0 +1,10 @@
+".\Objects\STARTUP.obj",
+".\Objects\main.obj",
+".\Objects\led.obj",
+".\Objects\key.obj",
+".\Objects\seg.obj",
+".\Objects\uart.obj",
+".\Objects\iic.obj",
+".\Objects\wave.obj" 
+TO ".\Objects\project" 
+PRINT(".\Listings\project.m51") RAMSIZE(256) 

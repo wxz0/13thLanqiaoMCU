@@ -1,0 +1,62 @@
+C51 COMPILER V9.60.7.0   UART                                                              05/05/2026 17:36:39 PAGE 1   
+
+
+C51 COMPILER V9.60.7.0, COMPILATION OF MODULE UART
+OBJECT MODULE PLACED IN .\Objects\uart.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE hardware\uart.c OPTIMIZE(8,SPEED) BROWSE INCDIR(.\hardware) DEBUG OBJECT
+                    -EXTEND PRINT(.\Listings\uart.lst) TABS(2) OBJECT(.\Objects\uart.obj)
+
+line level    source
+
+   1          #include "uart.h"
+   2          void Uart1_Isr(void) interrupt 4
+   3          {
+   4   1        if (TI)       //检测串口1发送中断
+   5   1        {
+   6   2          TI = 0;     //清除串口1发送中断请求位
+   7   2        }
+   8   1        if (RI)       //检测串口1接收中断
+   9   1        {
+  10   2          RI = 0;     //清除串口1接收中断请求位
+  11   2        }
+  12   1      }
+  13          
+  14          void Uart1_Init(void) //9600bps@12.000MHz
+  15          {
+  16   1        SCON = 0x50;    //8位数据,可变波特率
+  17   1        AUXR |= 0x01;   //串口1选择定时器2为波特率发生器
+  18   1        AUXR &= 0xFB;   //定时器时钟12T模式
+  19   1        T2L = 0xE6;     //设置定时初始值
+  20   1        T2H = 0xFF;     //设置定时初始值
+  21   1        AUXR |= 0x10;   //定时器2开始计时
+  22   1        ES = 1;       //使能串口1中断
+  23   1      }
+  24          
+  25          void uart_sendbyte(uint8_t byte)
+  26          {
+  27   1        SBUF = byte;
+  28   1        while(!TI);
+  29   1        TI = 0;
+  30   1      }
+  31          
+  32          extern char putchar(char ch)
+  33          {
+  34   1        SBUF = ch;
+  35   1        while(!TI);
+  36   1        TI = 0;
+  37   1        return ch;
+  38   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     48    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

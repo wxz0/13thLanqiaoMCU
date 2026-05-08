@@ -16,7 +16,7 @@ void sendwave(void)
  for(i = 0;i<8;i++)
  {
   P10 = 1;
-	Delay12us();
+  Delay12us();
   P10 = 0;
   Delay12us();	 
  }

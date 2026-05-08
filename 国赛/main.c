@@ -265,7 +265,7 @@ void seg_task(void)
 	   if(!fre_mode)
 		 {
 			 seg_show[2] = fre / 100000;
-		   seg_show[3] = fre / 10000;
+		   seg_show[3] = fre / 10000 % 10;
 			 seg_show[4] = fre / 1000 % 10;
 			 seg_show[5] = fre / 100 % 10;
 			 seg_show[6] = fre / 10 % 10;
@@ -291,7 +291,7 @@ void seg_task(void)
 			 {
 			   fre_100x = fre / 100.0;
 				 seg_show[2] = fre_100x / 100000;
-				 seg_show[3] = fre_100x / 10000;
+				 seg_show[3] = fre_100x / 10000 % 10;
 				 seg_show[4] = fre_100x / 1000 % 10;
 				 seg_show[5] = fre_100x / 100 % 10;
 				 seg_show[6] = fre_100x / 10 % 10;
@@ -308,7 +308,6 @@ void seg_task(void)
 					 } 
 				 }
 			 }
-			 
 		 }
 		 break;
 	 case 1:
